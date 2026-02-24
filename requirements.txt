@@ -1,3 +1,6 @@
+ultralytics
+opencv-python-headless
+runpod
 fastapi
 uvicorn
 ultralytics
