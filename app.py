@@ -1,20 +1,16 @@
-import runpod
+from fastapi import FastAPI, UploadFile, File
 from ultralytics import YOLO
-import base64
-import numpy as np
 import cv2
+import numpy as np
+
+app = FastAPI()
 
 model = YOLO("yolov8n.pt")
 
 
-def handler(event):
-    input_data = event.get("input", {})
-    image_b64 = input_data.get("image")
-
-    if not image_b64:
-        return {"error": "No image provided"}
-
-    image_bytes = base64.b64decode(image_b64)
+@app.post("/infer")
+async def infer(file: UploadFile = File(...)):
+    image_bytes = await file.read()
     np_arr = np.frombuffer(image_bytes, np.uint8)
     img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
@@ -35,6 +31,3 @@ def handler(event):
             })
 
     return {"detections": detections}
-
-
-runpod.serverless.start({"handler": handler})
