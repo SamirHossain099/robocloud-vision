@@ -2,11 +2,15 @@ from fastapi import FastAPI, UploadFile, File
 from ultralytics import YOLO
 import cv2
 import numpy as np
+import os
 
 app = FastAPI()
 
 model = YOLO("yolov8n.pt")
 
+@app.get("/ping")
+async def ping():
+    return {"status": "healthy"}
 
 @app.post("/infer")
 async def infer(file: UploadFile = File(...)):
@@ -31,3 +35,8 @@ async def infer(file: UploadFile = File(...)):
             })
 
     return {"detections": detections}
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", "80"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
